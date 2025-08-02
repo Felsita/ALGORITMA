@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algoritma Dijkstra - Jalur Terpendek</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Algoritma Dijkstra - Mencari Jalur Terpendek dari A ke E</h1>
+
+    <div>
+        <h3>Graf:</h3>
+        <pre>
+        A ---4--- B ---2--- D
+        |         |         |
+        5         1         3
+        |         |         |
+        C ---6--- E
+        </pre>
+    </div>
+
+    <div>
+        <h3>Hasil Jalur Terpendek:</h3>
+        <pre id="output"></pre>
+    </div>
+
+    <script>
+        // Implementasi Algoritma Dijkstra dalam JavaScript
+        function dijkstra(graph, start) {
+            let distances = {};
+            let prev = {};
+            let visited = new Set();
+            let nodes = Object.keys(graph);
+
+            // Inisialisasi jarak awal dan prev
+            nodes.forEach(node => {
+                distances[node] = Infinity;
+                prev[node] = null;
+            });
+            distances[start] = 0;
+
+            while (nodes.length > 0) {
+                // Pilih simpul dengan jarak terkecil
+                nodes.sort((a, b) => distances[a] - distances[b]);
+                let closestNode = nodes.shift();
+
+                if (distances[closestNode] === Infinity) break;
+
+                // Perbarui jarak untuk tetangga
+                for (let neighbor in graph[closestNode]) {
+                    if (visited.has(neighbor)) continue;
+                    let newDist = distances[closestNode] + graph[closestNode][neighbor];
+                    if (newDist < distances[neighbor]) {
+                        distances[neighbor] = newDist;
+                        prev[neighbor] = closestNode;
+                    }
+                }
+
+                visited.add(closestNode);
+            }
+
+            return { distances, prev };
+        }
+
+        // Definisikan graf berbobot
+        const graph = {
+            A: { B: 4, C: 5 },
+            B: { A: 4, D: 2, E: 1 },
+            C: { A: 5, E: 6 },
+            D: { B: 2, E: 3 },
+            E: { B: 1, C: 6, D: 3 }
+        };
+
+        // Jalankan Dijkstra dari A
+        const start = 'A';
+        const { distances, prev } = dijkstra(graph, start);
+
+        // Menyusun hasil jalur terpendek
+        let output = `Jarak Terpendek dari ${start} ke setiap simpul:\n`;
+        for (let node in distances) {
+            output += `${start} → ${node}: ${distances[node]} (Jalur: `;
+            let path = [];
+            let currentNode = node;
+            while (currentNode) {
+                path.unshift(currentNode);
+                currentNode = prev[currentNode];
+            }
+            output += path.join(' → ') + ')\n';
+        }
+
+        // Tampilkan hasil pada halaman web
+        document.getElementById('output').textContent = output;
+    </script>
+
+</body>
+</html>
